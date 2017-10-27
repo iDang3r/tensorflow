@@ -12,35 +12,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
+#ifndef THIRD_PARTY_TENSORFLOW_CORE_KERNELS_EYE_FUNCTOR_H_
+#define THIRD_PARTY_TENSORFLOW_CORE_KERNELS_EYE_FUNCTOR_H_
 
-#ifndef TENSORFLOW_COMPILER_XLA_TYPES_H_
-#define TENSORFLOW_COMPILER_XLA_TYPES_H_
+#include "tensorflow/core/framework/tensor_types.h"
 
-#include <complex>
+namespace tensorflow {
+namespace functor {
 
-#include "third_party/eigen3/Eigen/Core"
-#include "tensorflow/core/platform/types.h"
+template <typename Device, typename Scalar>
+struct EyeFunctor {
+  void operator()(const Device& device,
+                  typename TTypes<Scalar, 3>::Tensor matrix_batch);
+};
 
-#include <Eigen/Core>
+}  // namespace functor
+}  // namespace tensorflow
 
-namespace xla {
-
-using ::tensorflow::string;
-
-using ::tensorflow::int8;
-using ::tensorflow::int16;
-using ::tensorflow::int32;
-using ::tensorflow::int64;
-
-using ::tensorflow::uint8;
-using ::tensorflow::uint16;
-using ::tensorflow::uint32;
-using ::tensorflow::uint64;
-
-using complex64 = std::complex<float>;
-
-using ::Eigen::half;
-
-}  // namespace xla
-
-#endif  // TENSORFLOW_COMPILER_XLA_TYPES_H_
+#endif  // THIRD_PARTY_TENSORFLOW_CORE_KERNELS_EYE_FUNCTOR_H_
