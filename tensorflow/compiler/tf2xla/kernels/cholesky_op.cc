@@ -13,20 +13,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#ifndef THIRD_PARTY_TENSORFLOW_CORE_DISTRIBUTED_RUNTIME_RPC_GRPC_NAMESPACE_COMPAT_H_
-#define THIRD_PARTY_TENSORFLOW_CORE_DISTRIBUTED_RUNTIME_RPC_GRPC_NAMESPACE_COMPAT_H_
+#include "tensorflow/compiler/tf2xla/lib/cholesky.h"
+#include "tensorflow/compiler/tf2xla/xla_op_kernel.h"
+#include "tensorflow/compiler/tf2xla/xla_op_registry.h"
 
-// This file is a transitional place-holder until gRPC versions consistently
-// use namespace grpc::internal for library-internal structures
+namespace tensorflow {
+namespace {
 
-namespace grpc {
-// ensure internal namespace exists
-namespace internal {
-// bring in contents of external namespace
-using namespace ::grpc;
-}  // namespace internal
-// bring in contents of internal namespace
-using namespace internal;
-}  // namespace grpc
+class CholeskyOp : public XlaOpKernel {
+ public:
+  explicit CholeskyOp(OpKernelConstruction* ctx) : XlaOpKernel(ctx) {}
+  void Compile(XlaOpKernelContext* ctx) override {
+    auto result = Cholesky(ctx->builder(), ctx->Input(0));
+    if (!result.ok()) {
+      ctx->SetStatus(result.status());
+      return;
+    }
+    ctx->SetOutput(0, result.ValueOrDie());
+  }
+};
 
-#endif  // THIRD_PARTY_TENSORFLOW_CORE_DISTRIBUTED_RUNTIME_RPC_GRPC_NAMESPACE_COMPAT_H_
+REGISTER_XLA_OP(Name("Cholesky"), CholeskyOp);
+
+}  // namespace
+}  // namespace tensorflow
