@@ -1,4 +1,4 @@
-/* Copyright 2017 The TensorFlow Authors. All Rights Reserved.
+/* Copyright 2018 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,26 +12,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
+#include "tensorflow/core/graph/graph_def_builder_util.h"
 
-#include "tensorflow/compiler/xla/service/cpu/cpu_runtime_avx.h"
+#include "tensorflow/core/graph/graph_constructor.h"
 
-#define EIGEN_USE_THREADS
+namespace tensorflow {
 
-#include "third_party/eigen3/Eigen/Core"
-
-#ifdef TF_XLA_HAS_AVX
-xla::cpu::runtime::V8F32AVX __xla_cpu_runtime_LogV8F32AVX(
-    xla::cpu::runtime::V8F32AVX x) {
-  return Eigen::internal::plog(x);
+Status GraphDefBuilderToGraph(const GraphDefBuilder& builder, Graph* graph) {
+  GraphDef graph_def;
+  TF_RETURN_IF_ERROR(builder.ToGraphDef(&graph_def));
+  GraphConstructorOptions opts;
+  return ConvertGraphDefToGraph(opts, graph_def, graph);
 }
-#endif  // TF_XLA_HAS_AVX
 
-namespace xla {
-namespace cpu {
-namespace runtime {
-
-const char *const kLogV8F32AVXSymbolName = "__xla_cpu_runtime_LogV8F32AVX";
-
-}  // namespace runtime
-}  // namespace cpu
-}  // namespace xla
+}  // namespace tensorflow
