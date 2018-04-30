@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-#ifndef TENSORFLOW_CORE_KERNELS_DATA_STATS_AGGREGATOR_H_
-#define TENSORFLOW_CORE_KERNELS_DATA_STATS_AGGREGATOR_H_
+#ifndef TENSORFLOW_CORE_FRAMEWORK_STATS_AGGREGATOR_H_
+#define TENSORFLOW_CORE_FRAMEWORK_STATS_AGGREGATOR_H_
 
 #include <memory>
 #include <string>
@@ -46,6 +46,10 @@ class StatsAggregator {
   // element of `values` will be treated as a separate sample in the histogram.
   virtual void AddToHistogram(const string& name,
                               gtl::ArraySlice<double> values) = 0;
+
+  // TODO(shivaniagarawal): consistency in double and float usage.
+  // Add the given `value` as Scalar with the given `name`.
+  virtual void AddScalar(const string& name, float value) = 0;
 
   // Stores a protocol buffer representation of the aggregator state in the
   // given `out_summary`.
@@ -81,4 +85,4 @@ class StatsAggregatorResource : public ResourceBase {
 
 }  // namespace tensorflow
 
-#endif  // TENSORFLOW_CORE_KERNELS_DATA_STATS_AGGREGATOR_H_
+#endif  // TENSORFLOW_CORE_FRAMEWORK_STATS_AGGREGATOR_H_
