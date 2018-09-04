@@ -13,24 +13,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
 
-#include "tensorflow/core/util/status_util.h"
+#ifndef TENSORFLOW_CORE_COMMON_RUNTIME_LOWER_WHILE_OP_H_
+#define TENSORFLOW_CORE_COMMON_RUNTIME_LOWER_WHILE_OP_H_
 
-#include "tensorflow/core/graph/graph_constructor.h"
-#include "tensorflow/core/graph/node_builder.h"
-#include "tensorflow/core/lib/core/status_test_util.h"
-#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/common_runtime/optimization_registry.h"
+#include "tensorflow/core/lib/core/status.h"
 
 namespace tensorflow {
-namespace {
 
-TEST(TestStatusUtil, ErrorFormatTagForNode) {
-  Graph graph(OpRegistry::Global());
-  Node* node;
-  TF_CHECK_OK(NodeBuilder("Foo", "NoOp").Finalize(&graph, &node));
-  EXPECT_EQ(error_format_tag(*node, "${line}"), "^^node:Foo:${line}^^");
-  EXPECT_EQ(error_format_tag(*node, "${file}:${line}"),
-            "^^node:Foo:${file}:${line}^^");
-}
+// Rewrite While ops to use lower level control flow primitives instead.
+class LowerWhileOpPass : public GraphOptimizationPass {
+ public:
+  Status Run(const GraphOptimizationPassOptions& options) override;
 
-}  // namespace
+ private:
+  // Rewrite the given While node `n` in graph `g` to use the lower level
+  // primitives Enter, Exit, Switch, Merge and NextIteration.
+  Status RewriteNode(Node* n, Graph* g);
+};
+
 }  // namespace tensorflow
+
+#endif  // TENSORFLOW_CORE_COMMON_RUNTIME_LOWER_WHILE_OP_H_
